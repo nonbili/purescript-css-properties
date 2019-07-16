@@ -1,0 +1,26 @@
+{
+  "name": "purescript-css-properties",
+  "description": "Get a list of CSS properties or value keywords",
+  "keywords": [
+    "purescript",
+    "css",
+    "properties"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nonbili/purescript-css-properties.git"
+  },
+  "license": "BSD-3-Clause",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output"
+  ],
+  "dependencies": {
+    "purescript-prelude": "^4.1.0"
+  },
+  "devDependencies": {
+    "purescript-psci-support": "^4.0.0"
+  }
+}
