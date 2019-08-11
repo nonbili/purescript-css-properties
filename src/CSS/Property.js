@@ -5,40 +5,38 @@ var properties = Object.keys(syntax.properties);
 
 exports.properties = properties;
 
-
 // build map { t0: [t1,...tN] } where t1..tN are directly referenced by t0
 function getAllTypeReferences() {
-
   function typeReferences(term) {
-    const result = []
+    const result = [];
     grammar.walk(term, {
       enter: node => {
-        if (node.type === 'Type') {
-          result.push(node.name)
+        if (node.type === "Type") {
+          result.push(node.name);
         }
       }
     });
     return result;
   }
 
-  const result = {}
+  const result = {};
   for (t in syntax.types) {
     const type = syntax.types[t];
     if (type && type.syntax !== null) {
-      result[type.name] = typeReferences(type.syntax)
+      result[type.name] = typeReferences(type.syntax);
     }
   }
   return result;
 }
 
-var _colorTypes = undefined
+var _colorTypes = undefined;
 
 function getColorTypes() {
   if (_colorTypes !== undefined) {
     return _colorTypes;
   } else {
     const typeReferences = getAllTypeReferences();
-    const resolved = { color: true }
+    const resolved = { color: true };
 
     function isColor(typeName, visited) {
       if (resolved[typeName] !== undefined) {
@@ -49,9 +47,11 @@ function getColorTypes() {
         } else {
           visited[typeName] = true;
           if (typeReferences[typeName] !== undefined) {
-            const res = exists(typeReferences[typeName], y => isColor(y, visited))
-            resolved[typeName] = res
-            return res
+            const res = exists(typeReferences[typeName], y =>
+              isColor(y, visited)
+            );
+            resolved[typeName] = res;
+            return res;
           } else {
             resolved[typeName] = false;
           }
@@ -59,7 +59,10 @@ function getColorTypes() {
       }
     }
 
-    _colorTypes = [...['color'], ...Object.keys(typeReferences).filter(x => isColor(x, {}) )]
+    _colorTypes = [
+      ...["color"],
+      ...Object.keys(typeReferences).filter(x => isColor(x, {}))
+    ];
     return _colorTypes;
   }
 }
@@ -69,72 +72,72 @@ exports.getColorTypes = getColorTypes;
 var _colorProperties = undefined;
 
 function getColorProperties() {
-
   if (_colorProperties !== undefined) {
     return _colorProperties;
   }
 
   const colorTypes = getColorTypes();
 
-  const resolvedProperties = {}
-  const traversed = {}
+  const resolvedProperties = {};
+  const traversed = {};
 
   function propertyIsColor(term) {
     switch (term.type) {
-      case 'Property':
-          if (resolvedProperties[term.name] !== undefined) {
-            return resolvedProperties[term.name];
+      case "Property":
+        if (resolvedProperties[term.name] !== undefined) {
+          return resolvedProperties[term.name];
+        } else {
+          if (traversed[term.name] !== undefined) {
+            return false;
           } else {
-            if (traversed[term.name] !== undefined) {
-              return false;
-            } else {
-              traversed[term.name] = true;
-              const isColor =  propertyIsColor(syntax.properties[term.name].syntax)
-              resolvedProperties[term.name] = isColor;
-              return isColor;
-            }
+            traversed[term.name] = true;
+            const isColor = propertyIsColor(
+              syntax.properties[term.name].syntax
+            );
+            resolvedProperties[term.name] = isColor;
+            return isColor;
           }
-      case 'Type':
-        return colorTypes.includes(term.name)
-      case 'Multiplier':
-        return propertyIsColor(term.term)
-      case 'Group':
-        return exists(term.terms, propertyIsColor)
+        }
+      case "Type":
+        return colorTypes.includes(term.name);
+      case "Multiplier":
+        return propertyIsColor(term.term);
+      case "Group":
+        return exists(term.terms, propertyIsColor);
     }
   }
 
-  _colorProperties = Object.keys(syntax.properties).filter(p => propertyIsColor(syntax.properties[p].syntax));
+  _colorProperties = Object.keys(syntax.properties).filter(p =>
+    propertyIsColor(syntax.properties[p].syntax)
+  );
   return _colorProperties;
 }
 
-exports.getColorProperties = getColorProperties;
+exports.colorProperties = getColorProperties;
 
 function getColorValues() {
-  const colors = syntax.types['named-color'].syntax.terms
+  const colors = syntax.types["named-color"].syntax.terms
     .map(x => x.name)
-    .filter(x => x !== '-non-standard-color');
-  colors.push('currentColor')
+    .filter(x => x !== "-non-standard-color");
+  colors.push("currentColor");
   return colors.sort();
 }
 
-exports.getColorValues = getColorValues;
-
-exports.getValues = function (property) {
+exports.getValues = function(property) {
   if (!properties.includes(property)) return [];
 
-  if(getColorProperties().includes(property)) return getColorValues();
+  if (getColorProperties().includes(property)) return getColorValues();
 
   return syntax.properties[property].syntax.terms
-    .filter(function (term) {
+    .filter(function(term) {
       return term.type == "Keyword";
     })
-    .map(function (term) {
+    .map(function(term) {
       return term.name;
     });
 };
 
 // ------------------------- helper functions -----------------
-
 
 function exists(xs, predicate) {
   for (var i = 0; i < xs.length; i++) {
