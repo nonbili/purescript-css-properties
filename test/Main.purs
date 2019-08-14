@@ -3,9 +3,10 @@ module Test.Main where
 import Prelude
 
 import CSS.Property (getValues)
+import Data.Array as Array
 import Data.Foldable (sequence_)
 import Effect (Effect)
-import Jest (expectToEqual, test, describe)
+import Jest (expectToEqual, test, describe, expectToBeTrue)
 
 positionValues :: Array String
 positionValues =
@@ -43,10 +44,9 @@ colorValues = ["aliceblue", "antiquewhite", "aqua", "aquamarine"
   , "whitesmoke", "yellow", "yellowgreen"]
 
 colorProperties :: Array String
-colorProperties = [ "backdrop-filter"
-  , "background"
+colorProperties =
+  [ "background"
   , "background-color"
-  , "background-image"
   , "border"
   , "border-block"
   , "border-block-color"
@@ -57,8 +57,6 @@ colorProperties = [ "backdrop-filter"
   , "border-bottom"
   , "border-bottom-color"
   , "border-color"
-  , "border-image"
-  , "border-image-source"
   , "border-inline"
   , "border-inline-end"
   , "border-inline-color"
@@ -76,16 +74,9 @@ colorProperties = [ "backdrop-filter"
   , "color"
   , "column-rule"
   , "column-rule-color"
-  , "content"
-  , "filter"
-  , "mask"
-  , "mask-border"
-  , "mask-border-source"
-  , "mask-image"
   , "outline"
   , "outline-color"
   , "scrollbar-color"
-  , "shape-outside"
   , "text-decoration"
   , "text-decoration-color"
   , "text-emphasis"
@@ -97,8 +88,13 @@ colorProperties = [ "backdrop-filter"
 
 main :: Effect Unit
 main = do
+  test "border-image-source" $
+    expectToBeTrue $ Array.length (getValues "border-image-source") > 0
+
   test "getValues" $ do
     expectToEqual (getValues "position") positionValues
     expectToEqual (getValues "invalid") []
+
   describe "getValues of color properties" $ do
-    sequence_ $ (\p -> test p $ expectToEqual (getValues p) colorValues) <$> colorProperties
+    sequence_ $ colorProperties <#> \p ->
+      test p $ expectToEqual (getValues p) colorValues
