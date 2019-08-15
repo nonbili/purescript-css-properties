@@ -2,6 +2,7 @@
   "license": "BSD-3-Clause",
   "scripts": {
     "lint": "prettier -c {src,test}/**/*.js",
+    "postinstall": "bower install",
     "prettify": "prettier --write {src,test}/**/*.js",
     "test": "pulp build -I test -- +RTS -N2 -RTS && jest"
   },

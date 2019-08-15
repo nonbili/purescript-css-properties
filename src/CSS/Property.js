@@ -1,6 +1,7 @@
-var syntax = require("css-tree").lexer;
+const csstree = require("css-tree");
+const lexer = csstree.lexer;
 
-var properties = Object.keys(syntax.properties);
+const properties = Object.keys(lexer.properties);
 
 exports.properties = properties;
 
@@ -23,20 +24,33 @@ function isColorTerm(term) {
 }
 
 function acceptsColorKeyword(property) {
-  return syntax.properties[property].syntax.terms.some(isColorTerm);
+  return lexer.properties[property].syntax.terms.some(isColorTerm);
 }
 
-let colors = [];
+let namedColors = [];
 
 function getColorValues() {
-  if (!colors.length) {
-    colors = syntax.types["named-color"].syntax.terms
+  if (!namedColors.length) {
+    namedColors = lexer.types["named-color"].syntax.terms
       .filter(_ => _.type === "Keyword")
       .map(_ => _.name);
-    colors.push("currentColor");
-    colors.sort();
+    namedColors.push("currentColor");
+    namedColors.sort();
   }
-  return colors;
+  return namedColors;
+}
+
+function getKeywordsByType(type) {
+  const ret = [];
+  const ast = lexer.types[type].syntax;
+  csstree.grammar.walk(ast, {
+    enter: node => {
+      if (node.type === "Keyword") {
+        ret.push(node.name);
+      }
+    }
+  });
+  return ret;
 }
 
 exports.getValues = function(property) {
@@ -44,11 +58,16 @@ exports.getValues = function(property) {
 
   if (acceptsColorKeyword(property)) return getColorValues();
 
-  return syntax.properties[property].syntax.terms
-    .filter(function(term) {
-      return term.type == "Keyword";
-    })
-    .map(function(term) {
-      return term.name;
-    });
+  const ret = [];
+  const ast = lexer.properties[property].syntax;
+  csstree.grammar.walk(ast, {
+    enter: node => {
+      if (node.type === "Keyword") {
+        ret.push(node.name);
+      } else if (node.type === "Type") {
+        ret.push(...getKeywordsByType(node.name));
+      }
+    }
+  });
+  return ret;
 };

@@ -95,6 +95,10 @@ main = do
     expectToEqual (getValues "position") positionValues
     expectToEqual (getValues "invalid") []
 
+  test "align-items" $ do
+    expectToEqual (getValues "align-items")
+      ["normal", "stretch", "first", "last", "baseline", "unsafe", "safe", "center", "start", "end", "self-start", "self-end", "flex-start", "flex-end"]
+
   describe "getValues of color properties" $ do
     sequence_ $ colorProperties <#> \p ->
       test p $ expectToEqual (getValues p) colorValues
