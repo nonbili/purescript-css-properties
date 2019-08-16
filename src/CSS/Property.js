@@ -55,7 +55,7 @@ function getKeywordsByType(type) {
   return ret;
 }
 
-const commonValues = ["inherit", "initial", "revert", "unset"];
+const commonValues = ["inherit", "initial", "unset"];
 
 exports.getValues = function(property) {
   if (!properties.includes(property)) return [];
