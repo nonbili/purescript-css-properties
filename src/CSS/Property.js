@@ -34,7 +34,7 @@ function getColorValues() {
     namedColors = lexer.types["named-color"].syntax.terms
       .filter(_ => _.type === "Keyword")
       .map(_ => _.name);
-    namedColors.push("currentColor");
+    namedColors.push("currentColor", ...commonValues);
     namedColors.sort();
   }
   return namedColors;
@@ -55,17 +55,21 @@ function getKeywordsByType(type) {
   return ret;
 }
 
+const commonValues = ["inherit", "initial", "revert", "unset"];
+
 exports.getValues = function(property) {
   if (!properties.includes(property)) return [];
 
   if (acceptsColorKeyword(property)) return getColorValues();
 
-  const ret = [];
+  const ret = [...commonValues];
   const ast = lexer.properties[property].syntax;
   csstree.grammar.walk(ast, {
     enter: node => {
       if (node.type === "Keyword") {
-        ret.push(node.name);
+        if (!node.name.startsWith("-")) {
+          ret.push(node.name);
+        }
       } else if (node.type === "Type") {
         ret.push(...getKeywordsByType(node.name));
       }
