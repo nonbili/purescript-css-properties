@@ -43,6 +43,8 @@ function getColorValues() {
 function getKeywordsByType(type) {
   const ret = [];
   const ast = lexer.types[type].syntax;
+  if (!ast) return ret;
+
   csstree.grammar.walk(ast, {
     enter: node => {
       if (node.type === "Keyword") {
@@ -69,5 +71,5 @@ exports.getValues = function(property) {
       }
     }
   });
-  return ret;
+  return ret.sort();
 };

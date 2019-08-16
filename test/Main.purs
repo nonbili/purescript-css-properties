@@ -3,20 +3,9 @@ module Test.Main where
 import Prelude
 
 import CSS.Property (getValues)
-import Data.Array as Array
 import Data.Foldable (sequence_)
 import Effect (Effect)
-import Jest (expectToEqual, test, describe, expectToBeTrue)
-
-positionValues :: Array String
-positionValues =
-  [ "static"
-  , "relative"
-  , "absolute"
-  , "sticky"
-  , "fixed"
-  , "-webkit-sticky"
-  ]
+import Jest (expectToEqual, test, describe)
 
 colorValues :: Array String
 colorValues = ["aliceblue", "antiquewhite", "aqua", "aquamarine"
@@ -88,16 +77,20 @@ colorProperties =
 
 main :: Effect Unit
 main = do
-  test "border-image-source" $
-    expectToBeTrue $ Array.length (getValues "border-image-source") > 0
-
-  test "getValues" $ do
-    expectToEqual (getValues "position") positionValues
+  test "invalid" $ do
     expectToEqual (getValues "invalid") []
+
+  test "position" $ do
+    expectToEqual (getValues "position")
+      ["-webkit-sticky", "absolute", "fixed", "relative", "static", "sticky"]
 
   test "align-items" $ do
     expectToEqual (getValues "align-items")
-      ["normal", "stretch", "first", "last", "baseline", "unsafe", "safe", "center", "start", "end", "self-start", "self-end", "flex-start", "flex-end"]
+      ["baseline", "center", "end", "first", "flex-end", "flex-start", "last", "normal", "safe", "self-end", "self-start", "start", "stretch", "unsafe"]
+
+  test "height" $ do
+    expectToEqual (getValues "height")
+      ["auto", "available", "border-box", "content-box", "fit-content", "max-content", "min-content"]
 
   describe "getValues of color properties" $ do
     sequence_ $ colorProperties <#> \p ->
