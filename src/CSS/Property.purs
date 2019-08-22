@@ -1,6 +1,6 @@
 module CSS.Property
   ( properties
-  , getValues
+  , getPropertyKeywords
   ) where
 
 -- | Get a list of CSS properties.
@@ -12,4 +12,4 @@ foreign import properties :: Array String
 -- | invalid property. You can use
 -- | [purescript-css-validate](https://pursuit.purescript.org/packages/purescript-css-validate)
 -- | for validation.
-foreign import getValues :: String -> Array String
+foreign import getPropertyKeywords :: String -> Array String
